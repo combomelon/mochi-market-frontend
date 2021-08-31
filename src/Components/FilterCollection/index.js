@@ -12,7 +12,6 @@ import {
 } from 'antd';
 import { ArrowDownOutlined, EditOutlined } from '@ant-design/icons';
 import './styleFilter.scss';
-
 const { Panel } = Collapse;
 
 export default function FilterCollection({
@@ -24,8 +23,10 @@ export default function FilterCollection({
   attributesFilter,
   setModalEditFilter,
   filterChange,
+  debouncedFilterChange
 }) {
   const { walletAddress, infoAdmins } = useSelector((state) => state);
+
   return (
     <div className='collection-filter'>
       <div className='row-title-filter'>
@@ -66,6 +67,7 @@ export default function FilterCollection({
                 setObjectFilter={setObjectFilter}
                 objectFilter={objectFilter}
                 filterChange={filterChange}
+                debouncedFilterChange={debouncedFilterChange}
               />
             </Panel>
           ))}
@@ -75,7 +77,7 @@ export default function FilterCollection({
   );
 }
 
-function RenderSwitch({ attribute, setObjectFilter, objectFilter, filterChange }) {
+function RenderSwitch({ attribute, setObjectFilter, objectFilter, filterChange, debouncedFilterChange }) {
   switch (attribute.display_type) {
     case 'enum':
       return (
@@ -84,6 +86,7 @@ function RenderSwitch({ attribute, setObjectFilter, objectFilter, filterChange }
           setObjectFilter={setObjectFilter}
           objectFilter={objectFilter}
           filterChange={filterChange}
+          debouncedFilterChange={debouncedFilterChange}
         />
       );
     case 'number':
@@ -93,6 +96,7 @@ function RenderSwitch({ attribute, setObjectFilter, objectFilter, filterChange }
           setObjectFilter={setObjectFilter}
           objectFilter={objectFilter}
           filterChange={filterChange}
+          debouncedFilterChange={debouncedFilterChange}
         />
       );
     case 'date':
@@ -102,6 +106,7 @@ function RenderSwitch({ attribute, setObjectFilter, objectFilter, filterChange }
           setObjectFilter={setObjectFilter}
           objectFilter={objectFilter}
           filterChange={filterChange}
+          debouncedFilterChange={debouncedFilterChange}
         />
       );
     default:
@@ -109,17 +114,17 @@ function RenderSwitch({ attribute, setObjectFilter, objectFilter, filterChange }
   }
 }
 
-function TypeEnum({ attribute, setObjectFilter, objectFilter, filterChange }) {
+function TypeEnum({ attribute, setObjectFilter, objectFilter, filterChange, debouncedFilterChange }) {
   const handleOnChange = async (e, element) => {
     if (!!e.target.checked) {
       if (!!objectFilter[`${attribute.index}`]) {
         let attrs = objectFilter;
         attrs[`${attribute.index}`] = [...attrs[`${attribute.index}`], element];
-        setObjectFilter({ ...attrs });
+        await setObjectFilter({ ...attrs });
       } else {
         let attrs = objectFilter;
         attrs[`${attribute.index}`] = [element];
-        setObjectFilter({ ...attrs });
+        await setObjectFilter({ ...attrs });
       }
     } else {
       let attrs = objectFilter;
@@ -129,9 +134,10 @@ function TypeEnum({ attribute, setObjectFilter, objectFilter, filterChange }) {
         traitTypes.splice(index, 1);
       }
       attrs[`${attribute.index}`] = traitTypes;
-      setObjectFilter({ ...attrs });
+      await setObjectFilter({ ...attrs });
     }
-    await filterChange();
+    console.log('correct state in onChangeHandler for enum', objectFilter)
+    debouncedFilterChange();
   };
 
   return (
@@ -157,7 +163,7 @@ function TypeEnum({ attribute, setObjectFilter, objectFilter, filterChange }) {
   );
 }
 
-function TypeNumber({ attribute, setObjectFilter, objectFilter, filterChange }) {
+function TypeNumber({ attribute, setObjectFilter, objectFilter, filterChange, debouncedFilterChange }) {
   const [min, setMin] = useState();
   const [max, setMax] = useState();
   const [inputSlider, setInputSlider] = useState([0, 0]);
@@ -179,7 +185,7 @@ function TypeNumber({ attribute, setObjectFilter, objectFilter, filterChange }) 
     }
 
     await setObjectFilter({ ...attrs });
-    await filterChange();
+    debouncedFilterChange();
   };
 
   const checkExistMinMax =

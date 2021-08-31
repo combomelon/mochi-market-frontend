@@ -19,6 +19,7 @@ import 'Views/Home/index.scss';
 import './index.scss';
 import 'Views/Profile/index.scss';
 import 'Assets/css/common-card-nft.scss';
+import _ from 'lodash';
 
 export default function Collection() {
   let history = useHistory();
@@ -132,6 +133,7 @@ export default function Collection() {
   const filterChange = useCallback(async () => {
     try {
       setRefreshingNFTs(true);
+      console.log('incorrect state in filterChange', objectFilter)
       let exp = await getSellOrderByAttributes(
         chainID,
         addressToken,
@@ -149,6 +151,8 @@ export default function Collection() {
       console.log({ error });
     }
   }, [chainID, addressToken, objectFilter, strSearch, tokenPayment, typeSort]);
+
+  const [debouncedFilterChange] = useState(() => _.debounce(filterChange, 1000));
 
   const newMintNFT = useCallback(async () => {
     if (nftList) {
@@ -245,6 +249,7 @@ export default function Collection() {
                 isEndOfOrderList={isEndOfOrderList}
                 loadingScroll={loadingScroll}
                 filterChange={filterChange}
+                debouncedFilterChange={debouncedFilterChange}
                 setNftsOnSale={setNftsOnSale}
                 setSkip={setSkip}
                 tokenPayment={tokenPayment}

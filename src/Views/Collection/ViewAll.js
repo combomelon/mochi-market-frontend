@@ -35,6 +35,7 @@ export default function ViewAll({
   isEndOfOrderList,
   loadingScroll,
   filterChange,
+  debouncedFilterChange,
   setNftsOnSale,
   setSkip,
   tokenPayment,
@@ -277,6 +278,7 @@ export default function ViewAll({
                     getInfoCollection={getInfoCollection}
                     setModalEditFilter={setModalEditFilter}
                     filterChange={filterChange}
+                    debouncedFilterChange={debouncedFilterChange}
                   />
                 </Col>
                 <Col xs={{ span: 24 }} lg={{ span: 16 }} xl={{ span: 18 }} xxl={{ span: 19 }}>
